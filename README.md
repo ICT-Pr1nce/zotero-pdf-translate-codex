@@ -2,7 +2,7 @@
 
 这是基于 [windingwind/zotero-pdf-translate](https://github.com/windingwind/zotero-pdf-translate) `2.4.6` 修改的个人测试版。它保留原插件的划词自动翻译、阅读器弹窗、侧栏、批注、笔记和原有翻译服务，只增加本文列出的功能。
 
-安装包名称：`translate-for-zotero-codex.xpi`
+安装包：从 [v2.4.6-codex.2 试用版](https://github.com/ICT-Pr1nce/zotero-pdf-translate-codex/releases/tag/v2.4.6-codex.2) 下载 `translate-for-zotero-codex.xpi`。
 
 > 当前版本：`2.4.6-codex.2`。这是试用版本，不提供自动更新，主要在 Windows 上测试。修改日期：`2026-07-14`。
 
