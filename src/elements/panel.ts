@@ -5,6 +5,7 @@ import { LANG_CODE } from "../utils/config";
 import {
   addTranslateTask,
   autoDetectLanguage,
+  formatTranslateTaskDuration,
   getLastTranslateTask,
   putTranslateTaskAtHead,
 } from "../utils/task";
@@ -80,6 +81,7 @@ export class TranslatorPanel extends PluginCEBase {
       : `<editable-text id="result-text" multiline="true" />`
   }
 </html:div>
+<html:div id="duration" class="translation-duration" hidden="true"></html:div>
 <html:div class="separator"></html:div>
 <html:div class="options-container">
   <html:div id="auto-container" class="options-grid">
@@ -427,6 +429,10 @@ export class TranslatorPanel extends PluginCEBase {
     );
 
     const lastTask = getLastTranslateTask();
+    const duration = this._queryID("duration") as HTMLElement;
+    const durationText = formatTranslateTaskDuration(lastTask);
+    duration.textContent = durationText;
+    duration.hidden = !durationText;
     if (!lastTask) {
       return;
     }

@@ -83,6 +83,18 @@ translator-plugin-panel .draggable-container[hidden] {
   display: none;
 }
 
+translator-plugin-panel .translation-duration {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 3px;
+  color: var(--fill-secondary);
+  font-size: 10px;
+  line-height: 12px;
+  text-align: right;
+  opacity: 0.78;
+  user-select: none;
+}
+
 translator-plugin-panel .options-container {
   display: grid;
   grid-template-columns: max-content 1fr;

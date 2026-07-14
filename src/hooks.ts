@@ -27,6 +27,7 @@ import { registerShortcuts } from "./modules/shortcuts";
 import { registerItemPaneInfoRows } from "./modules/infoBox";
 import { registerPrompt } from "./modules/prompt";
 import { registerCustomFields } from "./modules/fields";
+import { shutdownCodexService } from "./modules/services/codex";
 
 async function onStartup() {
   await Promise.all([
@@ -112,6 +113,7 @@ async function onMainWindowUnload(win: Window): Promise<void> {
 }
 
 function onShutdown(): void {
+  shutdownCodexService();
   ztoolkit.unregisterAll();
   Zotero.getMainWindows().forEach((win) => {
     onMainWindowUnload(win);

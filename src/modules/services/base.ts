@@ -44,6 +44,13 @@ export interface TranslateService {
   translate: TranslateTaskProcessor;
 
   /**
+   * Optional service-specific cache discriminator.
+   *
+   * Use this when changing service settings can change the translation output.
+   */
+  cacheKey?: () => string;
+
+  /**
    * Optional configuration UI builder.
    *
    * - Receives an {@link AllowedSettingsMethods}` instance with safe UI-building methods.

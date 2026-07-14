@@ -90,11 +90,28 @@ export interface TranslateTask {
    * If the task is once processed.
    */
   processed?: boolean;
+  /** Translation duration for the latest run, in milliseconds. */
+  elapsedMs?: number;
+  /** Whether the latest result came from the in-memory session cache. */
+  cacheHit?: boolean;
 }
 
 export type TranslateTaskProcessor = (
   data: Required<TranslateTask>,
 ) => Promise<void> | void;
+
+export function formatTranslateTaskDuration(task?: TranslateTask) {
+  if (!task) return "";
+  if (task.status === "processing" && task.elapsedMs === undefined) {
+    return "⏱ …";
+  }
+  if (task.elapsedMs === undefined) return "";
+  const duration =
+    task.elapsedMs < 1000
+      ? `${Math.max(1, Math.round(task.elapsedMs))} ms`
+      : `${(task.elapsedMs / 1000).toFixed(1)} s`;
+  return `${task.cacheHit ? "⚡" : "⏱"} ${duration}`;
+}
 
 function maskAccessToken(token: string): string {
   if (!token) return token;

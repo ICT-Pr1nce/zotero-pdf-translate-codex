@@ -1,9 +1,9 @@
 {
-  "name": "zotero-pdf-translate",
-  "version": "2.4.5",
-  "description": "Translate PDF, EPub, webpage, metadata, annotations, notes to the target language. Support 20+ translate services.",
+  "name": "zotero-pdf-translate-codex",
+  "version": "2.4.6-codex.2",
+  "description": "Translate for Zotero with a fast, locally authenticated Codex HTTP translation service.",
   "config": {
-    "addonName": "Translate for Zotero",
+    "addonName": "Translate for Zotero (Codex)",
     "addonID": "zoteropdftranslate@euclpts.com",
     "addonRef": "zoteropdftranslate",
     "prefsPrefix": "extensions.zotero.ZoteroPDFTranslate",

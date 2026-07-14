@@ -47,6 +47,7 @@ import { YoudaoZhiyun } from "./youdaozhiyun";
 import { YoudaoZhiyunLLM } from "./youdaozhiyunllm";
 import { DeepLCustom } from "./deeplcustom";
 import { DeepLX } from "./deeplx";
+import { Codex } from "./codex";
 
 const register: TranslateService[] = [
   Aliyun,
@@ -58,6 +59,7 @@ const register: TranslateService[] = [
   CambridgeDict,
   Claude,
   Cnki,
+  Codex,
   CollinsDict,
   DeeplFree,
   DeeplPro,
@@ -99,6 +101,22 @@ export class TranslationServices {
   #services: readonly TranslateService[] = Object.freeze(
     this.sortServices(register),
   );
+  #sessionCache = new Map<
+    string,
+    { result: string; audio: TranslateTask["audio"] }
+  >();
+
+  private getSessionCacheKey(task: TranslateTask) {
+    const serviceConfigKey =
+      this.getServiceById(task.service)?.cacheKey?.() || "";
+    return JSON.stringify([
+      task.service,
+      serviceConfigKey,
+      task.raw,
+      task.langfrom || (getPref("sourceLanguage") as string),
+      task.langto || (getPref("targetLanguage") as string),
+    ]);
+  }
 
   /**
    * Sort the TranslateService list by the following rules:
@@ -246,6 +264,9 @@ export class TranslationServices {
       ztoolkit.log("skipped empty");
       return false;
     }
+    const startedAt = Date.now();
+    task.elapsedMs = undefined;
+    task.cacheHit = false;
     task.status = "processing" as TranslateTask["status"];
     // Check whether item language is in disabled languages list
     let disabledByItemLanguage = false;
@@ -283,23 +304,17 @@ export class TranslationServices {
     }
 
     let cacheHit = false;
+    const cacheKey = this.getSessionCacheKey(task);
     if (!noCache) {
-      // Check cache
-      const cachedTask = addon.data.translate.queue.findLast((_t) => {
-        return (
-          _t.status === "success" &&
-          _t.raw === task!.raw &&
-          _t.service === task!.service &&
-          (!task.langfrom || _t.langfrom === task.langfrom) &&
-          (!task.langto || _t.langto === task.langto)
-        );
-      });
-
-      if (cachedTask) {
+      const cached = this.#sessionCache.get(cacheKey);
+      if (cached) {
         cacheHit = true;
-        ztoolkit.log("cache hit", sanitizeTaskForLog(cachedTask));
-        task.result = cachedTask.result;
+        task.cacheHit = true;
+        task.result = cached.result;
+        task.audio = cached.audio.map((audio) => ({ ...audio }));
         task.status = "success";
+        task.elapsedMs = Date.now() - startedAt;
+        ztoolkit.log("session cache hit", sanitizeTaskForLog(task));
 
         if (!noDisplay) {
           addon.api.getTemporaryRefreshHandler()();
@@ -336,6 +351,14 @@ export class TranslationServices {
           ztoolkit.log("Invalid result regex", e);
           task.result = `Invalid result regex: ${resultRegex}. Please check settings > Translate > Advanced > Result Regex.`;
         }
+      }
+
+      task.elapsedMs = Date.now() - startedAt;
+      if (!noCache && task.status === "success") {
+        this.#sessionCache.set(cacheKey, {
+          result: task.result,
+          audio: task.audio.map((audio) => ({ ...audio })),
+        });
       }
 
       // Run extra tasks. Do not wait.

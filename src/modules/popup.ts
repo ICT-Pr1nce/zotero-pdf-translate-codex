@@ -2,7 +2,11 @@ import { SVGIcon } from "../utils/config";
 import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
-import { addTranslateTask, getLastTranslateTask } from "../utils/task";
+import {
+  addTranslateTask,
+  formatTranslateTaskDuration,
+  getLastTranslateTask,
+} from "../utils/task";
 import { slice } from "../utils/str";
 
 export function updateReaderPopup() {
@@ -30,6 +34,9 @@ export function updateReaderPopup() {
   const addToNoteButton = popup?.querySelector(
     `#${makeId("addtonote")}`,
   ) as HTMLDivElement;
+  const duration = popup?.querySelector(
+    `#${makeId("duration")}`,
+  ) as HTMLDivElement;
 
   const updateHidden = (elem: HTMLElement, hidden: boolean) => {
     if (hidden) {
@@ -44,6 +51,7 @@ export function updateReaderPopup() {
     updateHidden(translateButton, true);
     updateHidden(textarea, true);
     updateHidden(addToNoteButton, true);
+    if (duration) updateHidden(duration, true);
     return;
   }
   const task = getLastTranslateTask({ type: "text" });
@@ -104,6 +112,12 @@ export function updateReaderPopup() {
   textarea.style.lineHeight = `${
     Number(getPref("lineHeight")) * Number(getPref("fontSize"))
   }px`;
+
+  if (duration) {
+    const durationText = formatTranslateTaskDuration(task);
+    duration.textContent = durationText;
+    updateHidden(duration, !durationText);
+  }
 
   const enableAddToNote = getPref("enableNote") as boolean;
   if (
@@ -272,6 +286,29 @@ export function buildReaderPopup(
               },
             },
           ],
+        },
+        {
+          tag: "div",
+          id: makeId("duration"),
+          classList: [
+            `${config.addonRef}-translation-duration`,
+            `${config.addonRef}-readerpopup`,
+          ],
+          styles: {
+            boxSizing: "border-box",
+            width: "100%",
+            padding: "2px 7px 0",
+            textAlign: "right",
+            color: "var(--fill-secondary)",
+            fontSize: "10px",
+            lineHeight: "12px",
+            opacity: "0.78",
+            userSelect: "none",
+          },
+          properties: {
+            hidden: true,
+          },
+          ignoreIfExists: true,
         },
         {
           tag: "button",
